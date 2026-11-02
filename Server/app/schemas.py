@@ -1,51 +1,71 @@
-from typing import Optional
-from pydantic import BaseModel
+"""Input data for the small educational API."""
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class UserCreate(BaseModel):
-    role_id: int
-    telegram_id: int
-    display_name: str
+class RequestData(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True, extra="forbid")
 
 
-class GenreCreate(BaseModel):
-    name: str
+class UserCreate(RequestData):
+    role_id: int = Field(gt=0)
+    telegram_id: int = Field(gt=0)
+    display_name: str = Field(min_length=2, max_length=60)
 
 
-class GameCreate(BaseModel):
-    name: str
-    description: str
-    genre_id: int
-    author_id: int
-    publication_status: Optional[str] = "draft"
+class GenreCreate(RequestData):
+    name: str = Field(min_length=2, max_length=50)
 
 
-class LobbyCreate(BaseModel):
-    owner_id: int
-    genre_id: int
-    name: str
-    invite_code: str
-    status: Optional[str] = "collecting"
+class GameCreate(RequestData):
+    name: str = Field(min_length=2, max_length=120)
+    description: str = Field(min_length=2, max_length=1000)
+    genre_id: int = Field(gt=0)
+    author_id: int = Field(gt=0)
 
 
-class LobbyMemberAdd(BaseModel):
-    user_id: int
+class LobbyCreate(RequestData):
+    owner_id: int = Field(gt=0)
+    genre_id: int = Field(gt=0)
+    name: str = Field(min_length=2, max_length=100)
+    invite_code: str = Field(min_length=4, max_length=20, pattern=r"^[A-Za-z0-9_-]+$")
 
 
-class IdeaCreate(BaseModel):
-    author_id: int
-    body: str
+class LobbyMemberAdd(RequestData):
+    user_id: int = Field(gt=0)
 
 
-class GameGenerateRequest(BaseModel):
-    requester_id: int
-    ai_model: Optional[str] = "gpt-4o"
-    cost_credits: Optional[int] = 50
+class IdeaCreate(RequestData):
+    author_id: int = Field(gt=0)
+    body: str = Field(min_length=3, max_length=500)
 
 
-class GameSaveFromGeneration(BaseModel):
-    author_id: int
-    name: Optional[str] = None
-    description: Optional[str] = None
-    publication_status: Optional[str] = "draft"
-    html_file: Optional[str] = None
+class GameGenerateRequest(RequestData):
+    requester_id: int = Field(gt=0)
+
+
+class GameSaveFromGeneration(RequestData):
+    author_id: int = Field(gt=0)
+    name: str | None = Field(default=None, min_length=2, max_length=120)
+    description: str | None = Field(default=None, min_length=2, max_length=1000)
+
+
+class UserUpdate(RequestData):
+    display_name: str = Field(min_length=2, max_length=60)
+
+
+class GenreUpdate(RequestData):
+    name: str = Field(min_length=2, max_length=50)
+
+
+class GameUpdate(RequestData):
+    name: str = Field(min_length=2, max_length=120)
+    description: str = Field(min_length=2, max_length=1000)
+
+
+class LobbyUpdate(RequestData):
+    name: str = Field(min_length=2, max_length=100)
+
+
+class IdeaUpdate(RequestData):
+    body: str = Field(min_length=3, max_length=500)

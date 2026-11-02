@@ -32,9 +32,13 @@ services:
       MYSQL_USER: forge_user
       MYSQL_PASSWORD: forge_password
       MYSQL_DATABASE: gameforge_course
+      GAME_FILES_DIR: /app/game_files
+    volumes:
+      - game_files:/app/game_files
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   mysql_data:
+  game_files:
